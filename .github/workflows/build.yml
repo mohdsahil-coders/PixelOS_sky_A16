@@ -1,48 +1,16 @@
-name: PixelOS Sky Build
+name: PixelOS Sky A16 Build
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build PixelOS Sky A16
-    runs-on: ubuntu-22.04
-    timeout-minutes: 720
-    env:
-      USE_CCACHE: 1
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-      TMPDIR: ${{ github.workspace }}/tmp
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout repo
+    - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        submodules: true
-        fetch-depth: 0
-
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev \
-        gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev \
-        libx11-dev lib32z1-dev ccache lzop libncurses5 libncurses5-dev python3 \
-        python3-distutils openjdk-21 clang lzip schedtool
-
-    - name: Setup repo
-      run: |
-        curl https://storage.googleapis.com/git-repo-downloads/repo > repo
-        chmod +x repo
-        export PATH=$PWD:$PATH
-
-    - name: Initialize PixelOS manifest
-      run: |
-        mkdir -p ~/pixelos16
-        cd ~/pixelos16
-        repo init -u https://github.com/PixelOS-AOSP/manifest.git -b sixteen --depth=1
-        repo sync -c --no-tags --no-clone-bundle -j$(nproc)
 
     - name: Apply patches
       run: |
