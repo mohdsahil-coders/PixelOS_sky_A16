@@ -8,22 +8,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Upload ROM
-      uses: actions/upload-artifact@v4
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y openjdk-17-jdk git-core repo bc bison build-essential \
+        curl flex g++-multilib gcc-multilib gnupg gperf libncurses5-dev \
+        libssl-dev libxml2-utils lzop pngcrush rsync unzip zip zlib1g-dev
+
+    - name: Init PixelOS source
+      run: |
+        repo init -u https://github.com/PixelOS-AOSP/manifest.git -b sixteen
+        repo sync -c --no-tags --no-clone-bundle -j$(nproc)
 
     - name: Apply patches
       run: |
-        cd ~/pixelos16
-        if [ -d $GITHUB_WORKSPACE/patches ]; then
+        if [ -d "$GITHUB_WORKSPACE/patches" ]; then
+          cd .
           for p in $GITHUB_WORKSPACE/patches/*.patch; do
-            git apply $p || true
+            git apply "$p" || true
           done
         fi
 
     - name: Build PixelOS Sky
       run: |
-        cd ~/pixelos16
         source build/envsetup.sh
         lunch aosp_sky-userdebug
         mka bacon -j$(nproc)
+
+    - name: Upload ROM
+      uses: actions/upload-artifact@v4
+      with:
+        name: PixelOS_Sky_A16_ROM
+        path: out/target/product/sky/*.zip
