@@ -27,9 +27,3 @@ jobs:
         source build/envsetup.sh
         lunch aosp_sky-userdebug
         mka bacon -j$(nproc)
-
-    - name: Upload ROM
-      uses: actions/upload-artifact@v3
-      with:
-        name: PixelOS_sky_A16_ROM
-        path: ~/pixelos16/out/target/product/sky/*.zip
